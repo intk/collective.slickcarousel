@@ -5,10 +5,6 @@ Features
 - Easy to adapt to custom dexterity types
 - Uses slick carousel by Ken Wheeler
 
-|eventview|
-
-.. |eventview| image:: http://dev.intk.com/lead_media_screen_view.png
-
 How it works
 ============
 
