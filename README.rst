@@ -5,6 +5,7 @@ Features
 - Easy to adapt to custom dexterity types
 - Uses slick carousel by Ken Wheeler
 
+
 How it works
 ============
 
