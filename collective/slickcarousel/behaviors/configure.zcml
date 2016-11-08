@@ -8,36 +8,36 @@
   <include package="plone.behavior" file="meta.zcml"/>
 
   <plone:behavior
-    title="Slideshow"
-    description="Adds slideshow"
-    provides=".slideshow.ISlideshow"
-    factory=".slideshow.Slideshow"
+    title="Slick Carousel"
+    description="Adds Slick Carousel"
+    provides=".slickcarousel.ISlickCarousel"
+    factory=".slickcarousel.SlickCarousel"
     for="*"
-    marker=".slideshow.ISlideshow"
+    marker=".slickcarousel.ISlickCarousel"
     />
 
   <browser:viewlet
-    name="slideshow"
-    for=".slideshow.ISlideshow"
-    class=".viewlets.SlideshowViewlet"
+    name="slickcarousel"
+    for=".slickcarousel.ISlickCarousel"
+    class=".viewlets.SlickCarouselViewlet"
     manager="plone.app.layout.viewlets.interfaces.IAboveContentBody"
-    template="templates/slideshow.pt"
+    template="templates/slickcarousel.pt"
     permission="zope2.View"
     />
 
    <browser:page
          for="*"
-         name="get_slideshow_item"
-         class=".slideshow.getSlideshowItem"
-         template="templates/slideshow_item.pt"
+         name="get_carousel_item"
+         class=".slickcarousel.SlickCarouselItemView"
+         template="templates/slickcarousel_item.pt"
          permission="zope2.View"
     />
 
     <browser:page
          for="*"
-         name="slideshowListing"
-         class=".slideshow.slideshowListingView"
-         template="templates/slideshow_listing.pt"
+         name="get_carousel_listing"
+         class=".slickcarousel.SlickCarouselListingView"
+         template="templates/slickcarousel_listing.pt"
          permission="zope2.View"
     />
 

@@ -15,79 +15,10 @@
   
   <genericsetup:registerProfile
       name="default"
-      title="Collective Leadmedia"
+      title="Slick Carousel"
       directory="profiles/default"
-      description='Adds a slideshow to any dexterity folderish type.'
+      description='Adds a carousel to any dexterity folderish type.'
       provides="Products.GenericSetup.interfaces.EXTENSION"
       />
-
-  <!-- Register the import step -->
-  <genericsetup:importStep
-      name="collective.slickcarousel"
-      title="collective.slickcarousel special import handlers"
-      description=""
-      handler="collective.slickcarousel.setuphandlers.import_various" />
-
-  <!-- Register the upgrade step -->
-  <genericsetup:upgradeStep
-      title="Add leadmedia catalog indexes"
-      description="Add the hasMedia and leadMedia indexes"
-      source="1000"
-      destination="1001"
-      handler="collective.slickcarousel.setuphandlers.add_catalog_indexes"
-      profile="collective.slickcarousel:default" />
-
-  <adapter
-      for="plone.dexterity.interfaces.IDexterityContainer"
-      provides=".interfaces.ICanContainMedia"
-      factory=".adapters.MediaHandling"
-      />
-
-  <adapter
-      for="plone.app.contenttypes.interfaces.IFolder"
-      provides=".interfaces.ICanContainMedia"
-      factory=".adapters.MediaHandling"
-      />
-  
- <adapter
-      for="plone.app.contenttypes.interfaces.ICollection"
-      provides=".interfaces.ICanContainMedia"
-      factory=".adapters.MediaHandling"
-      />
-
-  <subscriber
-        for="plone.dexterity.interfaces.IDexterityContainer
-        zope.lifecycleevent.interfaces.IObjectModifiedEvent"
-        handler="collective.slickcarousel.events.reindexMedia" />
-
-  <subscriber
-        for="plone.app.contenttypes.interfaces.IFolder
-        zope.lifecycleevent.interfaces.IObjectModifiedEvent"
-        handler="collective.slickcarousel.events.reindexMedia" />
-
-  <subscriber
-        for="plone.app.contenttypes.interfaces.ICollection
-        zope.lifecycleevent.interfaces.IObjectModifiedEvent"
-        handler="collective.slickcarousel.events.reindexMedia" />
-
-  <!-- if image cropping present -->
-  <subscriber
-      for="plone.app.contenttypes.interfaces.IImage
-      zope.lifecycleevent.interfaces.IObjectAddedEvent
-      "
-      handler=".utils.imageObjectCreated"
-      zcml:condition="installed plone.app.imagecropping"/>
-
-  <adapter name="hasMedia" factory=".indexers.hasMedia" />
-  <adapter name="leadMedia" factory=".indexers.leadMedia" />
-  <adapter name="hasMedia" factory=".indexers.folder_hasMedia" />
-  <adapter name="leadMedia" factory=".indexers.folder_leadMedia" />
-  <adapter name="hasMedia" factory=".indexers.collection_hasMedia" />
-  <adapter name="leadMedia" factory=".indexers.collection_leadMedia" />
-
-  <subscriber
-        for="plone.dexterity.interfaces.IDexterityContainer
-        zope.lifecycleevent.interfaces.IObjectAddedEvent"
-        handler=".events.objectAddedEvent" />
   
 </configure>

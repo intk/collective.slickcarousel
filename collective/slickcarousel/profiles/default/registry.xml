@@ -1,4 +1,35 @@
 <?xml version="1.0"?>
+<?xml version="1.0"?>
 <registry>
-  
+
+	<records prefix="plone.resources/slick-carousel-dist"
+	          interface='Products.CMFPlone.interfaces.IResourceRegistry'>
+	   <value key="js">++plone++collective.slickcarousel/dist/js/slick.js</value>
+	   <value key="css">
+	      <element>++plone++collective.slickcarousel/dist/css/slick.less</element>
+	   </value>
+	</records>
+
+	<records prefix="plone.resources/slick-carousel"
+	          interface='Products.CMFPlone.interfaces.IResourceRegistry'>
+	   <value key="js">++plone++collective.slickcarousel/js/slickcarousel.js</value>
+	   <value key="css">
+	      <element>++plone++collective.slickcarousel/css/slickcarousel.less</element>
+	   </value>
+	</records>
+
+
+	<!-- bundle definition -->
+	<records prefix="plone.bundles/collectiveobject-bundle"
+	          interface='Products.CMFPlone.interfaces.IBundleRegistry'>
+	  <value key="resources">
+	    <element>slick-carousel-dist</element>
+	    <element>slick-carousel</element>
+	  </value>
+	  <value key="enabled">True</value>
+	  <value key="compile">True</value>
+	  <value key="jscompilation">++plone++collective.slickcarousel/js/slickcarousel-bundle-compiled.js</value>
+	  <value key="csscompilation">++plone++collective.slickcarousel/css/slickcarousel-bundle-compiled.css</value>
+	  <value key="last_compilation"></value>
+	</records>
 </registry>

@@ -1,7 +1,7 @@
-collective.media Installation
+collective.slickcarousel Installation
 -----------------------------
 
-To install collective.media into the global Python environment (or a workingenv),
+To install collective.slickcarousel into the global Python environment (or a workingenv),
 using a traditional Zope 2 instance, you can do this:
 
 * When you're reading this you have probably already run 

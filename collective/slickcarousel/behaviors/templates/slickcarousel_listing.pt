@@ -1,4 +1,3 @@
 <metal:block
     tal:define="dummy python:request.RESPONSE.setHeader('Content-Type', 'text/json;;charset='+context.plone_utils.getSiteEncoding())"
-    tal:condition="python: getattr(context, 'portal_type', None) not in ['Object', None]"
-    /><tal:json tal:replace="view/getJSON" tal:on-error="nothing"/>
+    /><tal:json tal:replace="python: view.getJSON()" tal:on-error="nothing"/>
