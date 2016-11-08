@@ -4,9 +4,10 @@
 
 	<records prefix="plone.resources/slick-carousel-dist"
 	          interface='Products.CMFPlone.interfaces.IResourceRegistry'>
-	   <value key="js">++plone++collective.slickcarousel/dist/js/slick.js</value>
+	   <value key="js">++plone++collective.slickcarousel/dist/slick-1.6.0/slick/slick.min.js</value>
 	   <value key="css">
-	      <element>++plone++collective.slickcarousel/dist/css/slick.less</element>
+	      <element>++plone++collective.slickcarousel/dist/slick-1.6.0/sick/slick.less</element>
+	      <element>++plone++collective.slickcarousel/dist/slick-1.6.0/sick/slick-themee.less</element>
 	   </value>
 	</records>
 
