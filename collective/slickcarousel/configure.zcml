@@ -1,17 +1,24 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
     xmlns:five="http://namespaces.zope.org/five"
+    xmlns:browser="http://namespaces.zope.org/browser"
     xmlns:i18n="http://namespaces.zope.org/i18n"
     xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
-    xmlns:zcml="http://namespaces.zope.org/zcml"
-    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:grok="http://namespaces.zope.org/grok"
+    xmlns:plone="http://namespaces.plone.org/plone"
     i18n_domain="collective.slickcarousel">
 
-  <five:registerPackage package="." initialize=".initialize" />
+  <includeDependencies package="." />
 
-
+  <!-- Grok the package to initialize schema interfaces and content classes -->
+  <grok:grok package="." />
+  
   <include package=".browser" />
   <include package=".behaviors" />
+
+  <browser:resourceDirectory
+    name="collective.slickcarousel"
+    directory="resources" />
   
   <genericsetup:registerProfile
       name="default"

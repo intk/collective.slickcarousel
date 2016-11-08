@@ -22,33 +22,14 @@ import json
 
 class ISlickCarousel(model.Schema):
     """ Marker interface for a Slick Carousel """
-	pass
+    pass
 
 class SlickCarousel(object):
-	implements(ISlickCarousel)
-	adapts(IDexterityContainer)
+    implements(ISlickCarousel)
+    adapts(IDexterityContainer)
 
-	def __init__(self, context):
-		self.context = context
-
-    def get_items(self):
-        items = []
-        # Check if slideshow exists
-        if 'slideshow' in self.context:
-            # Get items inside of slideshow
-            slideshow = self.context['slideshow']
-            catalog = getToolByName(self.context, "portal_catalog")
-            slideshow_path = "/".join(slideshow.getPhysicalPath())
-            items = catalog(path={"query": slideshow_path, depth: 1})
-            for brain in items:
-                if brain.leadMedia and brain.portal_type != "Image":
-                    img = uuidToCatalogBrain(brain.leadMedia)
-                    items.append({"url": img.getURL()})
-                elif brain.portal_type == "Image":
-                    items.append({"url": brain.getURL()})
-            return items
-        else:
-            return items
+    def __init__(self, context):
+        self.context = context
 
 # # # # #
 # Views #

@@ -1,12 +1,16 @@
 <div class="carousel" id="slickcarousel"
   i18n:domain="collective.slickcarousel">
+    <div class="carousel-wrapper">
     <div class="slideshow-wrapper">
-      <tal:slideshowitems tal:define="items view/get_items">
+      <tal:slideshowitems tal:define="items python: view.get_items()">
         <tal:slideshowitem tal:repeat="item items">
           <div class="carousel-item">
-            <img tal:attributes="src python: item.get('url', '#')" class="carousel-image"/>
+            <div class="carousel-image-wrapper">
+              <img tal:attributes="src python: item.get('url', '#')" class="carousel-image"/>
+            </div>
           </div>
         </tal:slideshowitem>
       </tal:slideshowitems>
+    </div>
     </div>
 </div>
