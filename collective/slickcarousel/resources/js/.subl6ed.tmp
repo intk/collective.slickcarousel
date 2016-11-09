@@ -1,0 +1,40 @@
+/* JS ENHANCEMENTS */
+
+require(['jquery', 'slick-carousel-dist'], 
+function(jQuery, slickDist) {
+
+	var slickCarousel = {};
+	/*
+	slickCarousel.updateHash = function(slick, currentSlide) {
+		// Get current slide
+		console.log(currentSlide);
+
+		// Get slide data-path
+		// Add hash to url
+
+	};
+
+	slickCarousel.afterChange = function(event, slick, currentSlide, nextSlide) {
+		slickCarousel.updateHash(slick, currentSlide);
+
+	};
+
+	slickCarousel.beforeChange = function(event, slick, currentSlide, nextSlide) {
+
+	};*/
+
+	slickCarousel.init = function(elem) {
+		jQuery(elem).slick({
+			infinite: true,
+			slidesToShow: 1,
+			dots: false,
+			speed: 500,
+			onAfterChange: slickCarousel.afterChange
+			onBeforeChange: slickCarousel.beforeChange
+		});
+	};
+
+	/*jQuery(document).ready(function() {
+		slickCarousel.init(".slideshow-wrapper");
+	});*/
+});

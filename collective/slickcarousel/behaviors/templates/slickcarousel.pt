@@ -1,16 +1,40 @@
-<div class="carousel" id="slickcarousel"
-  i18n:domain="collective.slickcarousel">
-    <div class="carousel-wrapper">
-    <div class="slideshow-wrapper">
-      <tal:slideshowitems tal:define="items python: view.get_items()">
-        <tal:slideshowitem tal:repeat="item items">
-          <div class="carousel-item">
-            <div class="carousel-image-wrapper">
-              <img tal:attributes="src python: item.get('url', '#')" class="carousel-image"/>
-            </div>
-          </div>
-        </tal:slideshowitem>
-      </tal:slideshowitems>
-    </div>
-    </div>
-</div>
+<tal:slideshowitems tal:define="items python: view.get_items()">
+  <div class="carousel" id="slickcarousel"
+    tal:attributes="class python: 'carousel empty' if not len(items) else 'carousel'"
+    
+    i18n:domain="collective.slickcarousel">
+      <div class="carousel-wrapper">
+      <div class="slideshow-wrapper">
+          <tal:slideshowitem tal:repeat="item items">
+            <tal:normalslide tal:condition="python: item.get('type', '') != 'Link'">
+              <div class="carousel-item" 
+                tal:attributes="data-path python: item.get('path', '');
+                                data-title python: item.get('title', '');
+                                data-description python: item.get('description', '');
+                                data-id python: item.get('id', '');
+                                data-index repeat/item/index;">
+                
+                <div class="carousel-image-wrapper">
+                  <img tal:attributes="src python: item.get('url', '#');" class="carousel-image"/>
+                </div>
+              </div>
+            </tal:normalslide>
+
+            <tal:videoslide tal:condition="python: item.get('type', '') == 'Link'">
+              <div class="carousel-item video-slide" 
+                tal:attributes="data-path python: item.get('path', '');
+                                data-title python: item.get('title', '');
+                                data-description python: item.get('description', '');
+                                data-id python: item.get('id', '');
+                                data-index repeat/item/index;">
+
+                <iframe frameborder="0" allowfullscreen tal:attributes="src python: item.get('url', '')" class="video-iframe without-overlay"></iframe>
+
+              </div>
+            </tal:videoslide>
+
+          </tal:slideshowitem>
+      </div>
+      </div>
+  </div>
+</tal:slideshowitems>
