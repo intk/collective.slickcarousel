@@ -42,13 +42,16 @@ class SlickCarouselViewlet(ViewletBase):
 
     def get_items(self):
         result = []
-        # Check if slideshow exists
-        # Check if folder
-        # Check if collection
 
-        #print self.context.getPhysicalPath()
+        portal_type = getattr(self.context, 'portal_type', None)
 
-        if self.context.get('slideshow', None):
+        if portal_type in ['Collection', 'Folder']:
+            if getattr(brain, 'leadMedia', None):
+                img = uuidToCatalogBrain(brain.leadMedia)
+                slide_item = self.generate_slide_item_from_brain(brain)
+                result.append(slide_item)
+
+        elif self.context.get('slideshow', None):
             # Get items inside of slideshow
             slideshow = self.context['slideshow']
             catalog = getToolByName(self.context, "portal_catalog")
