@@ -223,10 +223,10 @@ function(jQuery, slickDist) {
         var prev = slickCarousel.prevSlide;
 
         // initial - show both
-        if (currentSlide == 0) {
+        if (currentSlide == 0 || currentSlide == slick.$slides.length-1) {
             slickCarousel.initialPosition();
         } else if (prev == 0 && currentSlide == slick.$slides.length-1) {
-            slickCarousel.moveBackwards();
+            slickCarousel.moveForward();
         } else if (prev < currentSlide) {
             slickCarousel.moveForward();
         } else {
@@ -284,6 +284,8 @@ function(jQuery, slickDist) {
             initialSlide: initialSlide,
             dots: false,
             speed: 500,
+            nextArrow: "<div class='wrap-next'><button type='button' class='slick-next'></button></div>",
+            prevArrow: "<div class='wrap-prev'><button type='button' class='slick-prev'></button></div>"
         });
 
         if (!slickCarousel.$slick.length) {
@@ -298,7 +300,7 @@ function(jQuery, slickDist) {
             slickCarousel.beforeChange(event, slick, currentSlide, nextSlide);
         });
 
-        jQuery(".carousel-image-wrapper, .video-slide iframe").mouseover(function () {
+        jQuery(".carousel-image-wrapper, .video-slide iframe, .overlay-image").mouseover(function () {
             slickCarousel.initialPosition();
         });
 

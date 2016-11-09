@@ -25,7 +25,7 @@ class SlickCarouselViewlet(ViewletBase):
 
         if items:
             result = items[0]
-            return result.getURL()
+            return "%s/@@images/image/%s" % (result.getURL(), "large")
 
         return url
 
@@ -45,7 +45,7 @@ class SlickCarouselViewlet(ViewletBase):
             url = brain.getRemoteUrl
             if getattr(brain, 'leadMedia', None):
                 img = uuidToCatalogBrain(brain.leadMedia)
-                link_image = img.getURL()
+                link_image = "%s/@@images/image/%s" % (img.getURL(), "large")
             else:
                 link_image = self.get_lead_from_contents(brain)
 
@@ -53,12 +53,12 @@ class SlickCarouselViewlet(ViewletBase):
             # All content types except Image and Link
             if getattr(brain, 'leadMedia', None):
                 img = uuidToCatalogBrain(brain.leadMedia)
-                url = img.getURL()
+                url = "%s/@@images/image/%s" % (img.getURL(), "large")
             else:
                 url = self.get_lead_from_contents(brain)
         else:
             # Image
-            url = brain.getURL()
+            url = "%s/@@images/image/%s" % (brain.getURL(), "large")
 
         item = {
             "type": item_portal_type,
