@@ -16,18 +16,49 @@ class SlickCarouselViewlet(ViewletBase):
             return True
         return False
 
+    def get_lead_from_contents(self, brain):
+        url = None
+
+        path = brain.getPath()
+        catalog = getToolByName(self.context, "portal_catalog")
+        items = catalog(path={"query": path, "depth": 2}, sort_on="getObjPositionInParent", portal_type="Image")
+
+        if items:
+            result = items[0]
+            return result.getURL()
+
+        return url
+
     def generate_slide_item_from_brain(self, brain):
         item = {}
 
         path = brain.getPath()
-        url = brain.getURL()
+        url = None
         title = brain.Title
         description = brain.Description
         slide_id = brain.getId
         item_portal_type = brain.portal_type
+        link_image = None
 
         if item_portal_type == "Link":
+            # Link
             url = brain.getRemoteUrl
+            if getattr(brain, 'leadMedia', None):
+                img = uuidToCatalogBrain(brain.leadMedia)
+                link_image = img.getURL()
+            else:
+                link_image = self.get_lead_from_contents(brain)
+
+        elif item_portal_type != "Image":
+            # All content types except Image and Link
+            if getattr(brain, 'leadMedia', None):
+                img = uuidToCatalogBrain(brain.leadMedia)
+                url = img.getURL()
+            else:
+                url = self.get_lead_from_contents(brain)
+        else:
+            # Image
+            url = brain.getURL()
 
         item = {
             "type": item_portal_type,
@@ -35,7 +66,8 @@ class SlickCarouselViewlet(ViewletBase):
             "path": path,
             "title": title,
             "description": description,
-            "id": slide_id
+            "id": slide_id,
+            "link_image": link_image
         }
 
         return item
@@ -58,16 +90,21 @@ class SlickCarouselViewlet(ViewletBase):
             slideshow_path = "/".join(slideshow.getPhysicalPath())
             items = catalog(path={"query": slideshow_path, "depth": 1}, sort_on="getObjPositionInParent")
             for brain in items:
-                if getattr(brain, 'leadMedia', None) and brain.portal_type != "Image":
-                    img = uuidToCatalogBrain(brain.leadMedia)
+                slide_item = None
+                if brain.portal_type == "Link":
                     slide_item = self.generate_slide_item_from_brain(brain)
-                    result.append(slide_item)
-                elif brain.portal_type == "Link":
+                    #result.append(slide_item)
+                elif getattr(brain, 'leadMedia', None) and brain.portal_type != "Image":
                     slide_item = self.generate_slide_item_from_brain(brain)
-                    result.append(slide_item)
+                    #result.append(slide_item)
                 elif brain.portal_type == "Image":
                     slide_item = self.generate_slide_item_from_brain(brain)
-                    result.append(slide_item)
+                    #result.append(slide_item)
+
+                if slide_item:
+                    if slide_item['url'] != None:
+                        result.append(slide_item)
+
             return result
         else:
             return result

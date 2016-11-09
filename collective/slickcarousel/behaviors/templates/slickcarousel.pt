@@ -28,7 +28,14 @@
                                 data-id python: item.get('id', '');
                                 data-index repeat/item/index;">
 
-                <iframe frameborder="0" allowfullscreen tal:attributes="src python: item.get('url', '')" class="video-iframe without-overlay"></iframe>
+                <tal:useoverlayimage tal:condition="python: item.get('link_image', None) != None">
+                  <img src="" alt="" tal:attributes="src python: item.get('link_image', None); class python:'overlay-image';" />
+                  <iframe frameborder="0" allowfullscreen tal:attributes="src python: item.get('url', ''); id python: item.get('id', '');" class="video-iframe with-overlay"></iframe>
+                </tal:useoverlayimage>
+
+                <tal:nooverlayimage tal:condition="python: item.get('link_image', None) == None">
+                  <iframe frameborder="0" allowfullscreen tal:attributes="src python: item.get('url', ''); id python: item.get('id', '');" class="video-iframe without-overlay"></iframe>
+                </tal:nooverlayimage>
 
               </div>
             </tal:videoslide>
