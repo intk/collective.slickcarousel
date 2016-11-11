@@ -1,4 +1,11 @@
 /* JS ENHANCEMENTS */
+(function() { //Closure, to not leak to the scope
+    var s = document.createElement("script");
+    s.src = "https://www.youtube.com/iframe_api"; 
+    var before = document.getElementsByTagName("script")[0];
+    before.parentNode.insertBefore(s, before);
+})();
+
 var slickCarousel = {};
 slickCarousel.youtube_ready = false;
 slickCarousel.initiated_youtube = false;
@@ -16,6 +23,91 @@ function onYouTubePlayerAPIReady() {
     }
   }
 };
+
+function updatePOV(pano) {
+    var options = pano.options;
+    var pov_panorama = pano.panorama;
+    var pov_setInterval = pano.pov_interval;
+
+    if (pov_panorama != undefined && pov_panorama != null) { 
+        var current_heading = pov_panorama.getPov().heading;
+
+        if (options['heading_lower'] > options['heading']) {
+            var new_heading = current_heading + pano.options['heading_increase'];
+        } else {
+            var new_heading = current_heading - pano.options['heading_increase'];
+        }
+        pov_panorama.setPov({heading: new_heading, pitch: 0});
+
+        if (options['heading_lower'] > options['heading']) {
+            if (current_heading >= pano.options['heading_middle']) {
+              /* Deacelarates - remove acceleration */
+              pano.options['heading_increase'] = pano.options['heading_increase'] - acceleration;
+            } else {
+              /* Acelerates  - add acceleration */
+              pano.options['heading_increase'] = pano.options['heading_increase'] + acceleration;
+            }
+        } else {
+            if (current_heading <= pano.options['heading_middle']) {
+              /* Deacelarates - remove acceleration */
+              pano.options['heading_increase'] = pano.options['heading_increase'] - acceleration;
+            } else {
+              /* Acelerates  - add acceleration */
+              pano.options['heading_increase'] = pano.options['heading_increase'] + acceleration;
+            }
+        }
+
+        if (options['heading_lower'] > options['heading']) {
+            if (current_heading >= pano.options['heading_lower']) {
+              clearInterval(pov_setInterval);
+            }
+        } else {
+            if (current_heading <= pano.options['heading_lower']) {
+              clearInterval(pov_setInterval);
+            }
+        }
+    }
+}
+
+function movePOV(currslide) {
+    if (currslide.find('.street-view').length) {
+
+        var $street_view_div = jQuery(currslide.find('.street-view')[0]);
+
+        if ($street_view_div.data('headinglower') != undefined && $street_view_div.data('headinglower') != undefined != '') {
+            
+            var uid = $street_view_div.data('uid');
+            var pano = getPanorama(uid);
+            if (pano != false && pano != undefined && pano != null) {
+                if (!pano.pov_init && !isMobile.any()) {
+                    
+                    /* MOVE POV */
+                    var pov_setInterval = setInterval(function() {
+                        updatePOV(pano);
+                    }, interval_time);
+
+                    pano.pov_interval = pov_setInterval;
+                    pano.pov_init = true;
+
+                    if (slickCarousel.$slick != undefined) {
+                        slickCarousel.playingPosition();
+                    }
+                }
+            }
+        }
+    }
+}
+
+function clearPOV(currslide) {
+    if (currslide.find('.street-view').length) {
+        var $street_view_div = jQuery(currslide.find('.street-view')[0]);
+        var uid = $street_view_div.data('uid');
+        var pano = getPanorama(uid);
+        if (pano != false && pano != undefined && pano != null) {
+            clearInterval(pano.pov_interval);
+        }
+    }
+}
 
 var isMobile = {
     Android: function() {
@@ -40,13 +132,6 @@ var isMobile = {
 
 require(['jquery', 'slick-carousel-dist'], 
 function(jQuery, slickDist) {
-
-    (function() { //Closure, to not leak to the scope
-        var s = document.createElement("script");
-        s.src = "https://www.youtube.com/iframe_api"; 
-        var before = document.getElementsByTagName("script")[0];
-        before.parentNode.insertBefore(s, before);
-    })();
 
     slickCarousel.pauseCurrentSlide = function(currentSlide) {
         var curr = currentSlide;
@@ -110,9 +195,8 @@ function(jQuery, slickDist) {
     slickCarousel.onPlayerStateChange = function(iframeID) {
         return function(event) {
             if (event.data == 1) {
-                slickCarousel.playingPosition();
+                //slickCarousel.playingPosition();
                 slickCarousel.playing = true;
-          
                 setTimeout(function() {
                     jQuery(".slick-active.video-slide img.overlay-image").hide();
                     jQuery(".video-play-btn").css("opacity", 0);
@@ -223,7 +307,9 @@ function(jQuery, slickDist) {
         var prev = slickCarousel.prevSlide;
 
         // initial - show both
-        if (currentSlide == 0 || currentSlide == slick.$slides.length-1) {
+        if (currentSlide == 0 && jQuery('body').hasClass('section-front-page') && jQuery('body').hasClass('mobile')) {
+            slickCarousel.playingPosition();
+        } else if (currentSlide == 0 || currentSlide == slick.$slides.length-1) {
             slickCarousel.initialPosition();
         } else if (prev == 0 && currentSlide == slick.$slides.length-1) {
             slickCarousel.moveForward();
@@ -241,15 +327,82 @@ function(jQuery, slickDist) {
         }
     };
 
+    slickCarousel.startStreetView = function(slick, currentSlide) {
+        var $currslide = jQuery(slick.$slides[currentSlide]);
+        if ($currslide.find('audio').length) {
+            var audio_div = $currslide.find('audio')[0];
+            
+            if (!jQuery('body').hasClass('mobile')) {
+                audio_div.player.play();
+            }
+
+            var $button_play = jQuery($currslide.find('.play-button')[0]);
+            if ($button_play.hasClass('playing')) {
+              $button_play.removeClass('playing');
+              $button_play.addClass('paused');
+              $button_play.removeClass('hi-icon-volume-up');
+              $button_play.addClass('hi-icon-volume-off');
+            } else if ($button_play.hasClass('paused')) {
+              $button_play.removeClass('paused');
+              $button_play.addClass('playing');
+              $button_play.removeClass('hi-icon-volume-off');
+              $button_play.addClass('hi-icon-volume-up');
+            } else {
+              $button_play.removeClass('paused');
+              $button_play.addClass('playing');
+              $button_play.removeClass('hi-icon-volume-pff');
+              $button_play.addClass('hi-icon-volume-up');
+            }
+        }
+
+        /* Set interval for animation */
+        movePOV($currslide);
+    };
+
+    slickCarousel.pauseStreetView = function(slick, currentSlide, pauseAudio) {
+        var $currslide = jQuery(slick.$slides[currentSlide]);
+        if (pauseAudio) {
+            if ($currslide.find('audio').length) {
+                var audio_div = $currslide.find('audio')[0];
+                if (!jQuery('body').hasClass('mobile')) {
+                    audio_div.player.pause();
+                }
+                var $button_play = jQuery($currslide.find('.play-button')[0]);
+                if ($button_play.hasClass('playing')) {
+                  $button_play.removeClass('playing');
+                  $button_play.addClass('paused');
+                  $button_play.removeClass('hi-icon-volume-up');
+                  $button_play.addClass('hi-icon-volume-off');
+                } else if ($button_play.hasClass('paused')) {
+                  /* Do nothing */
+                } else {
+                  $button_play.removeClass('paused');
+                  $button_play.addClass('playing');
+                  $button_play.removeClass('hi-icon-volume-pff');
+                  $button_play.addClass('hi-icon-volume-up');
+                }
+            }
+        }
+        clearPOV($currslide);
+    }
+
     slickCarousel.afterChange = function(event, slick, currentSlide, nextSlide) {
+        if (!slickCarousel.moved) {
+            if (!jQuery(slickCarousel.elem).hasClass("moved")) {
+                jQuery(slickCarousel.elem).addClass("moved");
+            }
+            slickCarousel.moved = true;
+        }
         slickCarousel.updateHash(slick, currentSlide);
         slickCarousel.changeDirection(slick, currentSlide);
         slickCarousel.playVideoFromSlide(slick, currentSlide);
+        slickCarousel.startStreetView(slick, currentSlide);
     };
 
     slickCarousel.beforeChange = function(event, slick, currentSlide, nextSlide) {
         slickCarousel.prevSlide = currentSlide;
         slickCarousel.pauseCurrentSlide(currentSlide);
+        slickCarousel.pauseStreetView(slick, currentSlide, true);
     };
 
     slickCarousel.findInitialSlide = function(elem) {
@@ -271,6 +424,7 @@ function(jQuery, slickDist) {
         slickCarousel.initialSlide = initialSlide;
         slickCarousel.prevSlide = initialSlide;
         slickCarousel.elem = elem;
+        slickCarousel.moved = false;
     }
 
     slickCarousel.init = function(elem) {
@@ -300,7 +454,7 @@ function(jQuery, slickDist) {
             slickCarousel.beforeChange(event, slick, currentSlide, nextSlide);
         });
 
-        jQuery(".carousel-image-wrapper, .video-slide iframe, .overlay-image").mouseover(function () {
+        jQuery(".slick-track, .video-slide iframe, .overlay-image, .street-view").mouseover(function () {
             slickCarousel.initialPosition();
         });
 
@@ -308,6 +462,35 @@ function(jQuery, slickDist) {
             slickCarousel.initiated_youtube = true;
             slickCarousel.YT_ready();
         }
+
+        jQuery("#slideshow-btn").on('click touchstart', function() {
+            if (slickCarousel.$slick != undefined) {
+                slickCarousel.$slick.slick('slickNext');
+            }
+        });
+
+        jQuery(".street-view").on('click touchstart', function() {
+            if (slickCarousel.$slick != undefined) {
+                var currentSlide = slickCarousel.$slick.slick("slickCurrentSlide");
+                slickCarousel.pauseStreetView(slickCarousel.$slick.slick('getSlick'), currentSlide, false);
+            }
+        });
+
+        jQuery('.slideshow-btn-down').on('click touchstart', function() {
+            var scrollTo = "#content-core";
+
+            jQuery('.website-wrapper').animate({
+                    scrollTop: jQuery(scrollTo).offset().top
+            }, 600, function() {
+                // slide
+                var sliding = true;
+                if (slickCarousel != undefined) {
+                  if (slickCarousel.playing) {
+                    slickCarousel.pauseCurrentSlide();
+                  }
+                };
+            });
+        });
     };
 
     jQuery(document).ready(function() {

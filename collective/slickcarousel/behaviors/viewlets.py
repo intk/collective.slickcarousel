@@ -53,7 +53,8 @@ class SlickCarouselViewlet(ViewletBase):
             # All content types except Image and Link
             if getattr(brain, 'leadMedia', None):
                 img = uuidToCatalogBrain(brain.leadMedia)
-                url = "%s/@@images/image/%s" % (img.getURL(), "large")
+                if img:
+                    url = "%s/@@images/image/%s" % (img.getURL(), "large")
             else:
                 url = self.get_lead_from_contents(brain)
         else:
@@ -78,10 +79,16 @@ class SlickCarouselViewlet(ViewletBase):
         portal_type = getattr(self.context, 'portal_type', None)
 
         if portal_type in ['Collection', 'Folder']:
+            brain = uuidToCatalogBrain(self.context.UID())
             if getattr(brain, 'leadMedia', None):
-                img = uuidToCatalogBrain(brain.leadMedia)
-                slide_item = self.generate_slide_item_from_brain(brain)
-                result.append(slide_item)
+                img_uid = brain.leadMedia
+                img = uuidToCatalogBrain(img_uid)
+                if img:
+                    slide_item = self.generate_slide_item_from_brain(img)
+                    result.append(slide_item)
+                return result
+            else:
+                return result
 
         elif self.context.get('slideshow', None):
             # Get items inside of slideshow
@@ -108,4 +115,6 @@ class SlickCarouselViewlet(ViewletBase):
             return result
         else:
             return result
+
+        return result
 

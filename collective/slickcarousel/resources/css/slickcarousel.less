@@ -227,8 +227,23 @@
 	}
 }
 
-body.mobile #slickcarousel {
+body.mobile:not(.portaltype-portlet-page) #slickcarousel {
 	.wrap-next, .wrap-prev {
 		opacity: 1 !important;
 	}
 }
+
+body.mobile .slideshow-wrapper.moved {
+	.wrap-next, .wrap-prev {
+		opacity: 1 !important;
+	}
+}
+
+body.mobile .slideshow-wrapper.playing-slide {
+	.slick-prev, .slick-next, .wrap-next, .wrap-prev {
+		opacity: 0 !important;
+	}
+}
+
+
+
