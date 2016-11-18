@@ -12,6 +12,7 @@
                                 data-title python: item.get('title', '');
                                 data-description python: item.get('description', '');
                                 data-id python: item.get('id', '');
+                                data-absoluteurl python: item.get('absoluteurl', '');
                                 data-index repeat/item/index;">
                 
                 <div class="carousel-image-wrapper">
@@ -42,6 +43,39 @@
 
           </tal:slideshowitem>
       </div>
+        <tal:rendercontrols tal:condition="python: context.portal_type == 'Object'">
+          <div id="slideshow-controls" class="container">
+                <div class="col-lg-9 col-md-9 col-sm-9 col-sx-12 count-description">
+                        <p class="slide-description"><span id="slide-count"></span><span id="slide-description"></span></p>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 actions-div">
+                        <a type="button" class="btn btn-default info-btn"><i class="fa fa-info-circle"></i></a>
+                        <a type="button" class="btn btn-default expand-btn"><i class="fa fa-compress"></i></a>
+                        <a type="button" class="btn btn-default share-btn hidden-xs" data-toggle="popover" data-placement="top"><i class="fa fa-share-alt"></i></a>
+
+                        <div id="share-title" style="display:none" i18n:translate="Share">
+                          Deze pagina delen
+                        </div>
+
+                        <div id="share-settings" style="display:none">
+                          <div class="row facebook-row">
+                            <div class="fb-like" data-layout="button_count" data-action="like" data-show-faces="false" data-share="false"></div>
+                          </div>
+
+                          <div class="row twitter-row">
+                                  <a href="https://twitter.com/share" class="twitter-share-button" tal:attributes="data-url python: context.absolute_url(); data-text python: context.Title()">Tweet</a>
+                          </div>
+
+                          <div class="row pinterest-row">
+                                  <a id="pinterest-btn" href="//www.pinterest.com/pin/create/button/?url=" data-pin-do="buttonPin" data-pin-config="none"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" tal:attributes="href python: '//www.pinterest.com/pin/create/button/?url=' + context.absolute_url()"/>
+                                  </a>
+                          </div>
+                        </div>
+                </div>
+          </div>
+        </tal:rendercontrols>
       </div>
   </div>
 </tal:slideshowitems>
+
+

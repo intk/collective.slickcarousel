@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from plone.app.layout.viewlets import ViewletBase
 from .slickcarousel import ISlickCarousel
-from plone.app.uuid.utils import uuidToCatalogBrain
+from plone.app.uuid.utils import uuidToCatalogBrain, uuidToObject
 from AccessControl import getSecurityManager
 from Products.CMFCore.permissions import ModifyPortalContent
 from Products.CMFCore.utils import getToolByName
@@ -37,6 +37,7 @@ class SlickCarouselViewlet(ViewletBase):
         title = brain.Title
         description = brain.Description
         slide_id = brain.getId
+        absoluteurl = brain.getURL()
         item_portal_type = brain.portal_type
         link_image = None
 
@@ -48,6 +49,8 @@ class SlickCarouselViewlet(ViewletBase):
                 link_image = "%s/@@images/image/%s" % (img.getURL(), "large")
             else:
                 link_image = self.get_lead_from_contents(brain)
+        
+        # add case for object
 
         elif item_portal_type != "Image":
             # All content types except Image and Link
@@ -68,9 +71,45 @@ class SlickCarouselViewlet(ViewletBase):
             "title": title,
             "description": description,
             "id": slide_id,
-            "link_image": link_image
+            "link_image": link_image,
+            "absoluteurl": absoluteurl
         }
 
+        return item
+
+    def generate_slide_from_contentlisting(self, item):
+        
+        path = item.getPath()
+        url = None
+        title = item.Title()
+        description = item.Description()
+        slide_id = item.getId()
+        absoluteurl = item.getURL()
+        item_portal_type = item.portal_type
+        link_image = None
+
+        if item_portal_type != "Image":
+            # All content types except Image and Link
+            if getattr(item, 'leadMedia', None):
+                img = uuidToCatalogBrain(item.leadMedia)
+                if img:
+                    url = "%s/@@images/image/%s" % (img.getURL(), "large")
+            else:
+                url = self.get_lead_from_contents(item)
+        else:
+            # Image
+            url = "%s/@@images/image/%s" % (item.getURL(), "large")
+
+        item = {
+            "type": item_portal_type,
+            "url": url,
+            "path": path,
+            "title": title,
+            "description": description,
+            "id": slide_id,
+            "link_image": link_image,
+            "absoluteurl": absoluteurl
+        }
         return item
 
     def get_items(self):
@@ -78,7 +117,24 @@ class SlickCarouselViewlet(ViewletBase):
 
         portal_type = getattr(self.context, 'portal_type', None)
 
-        if portal_type in ['Collection', 'Folder']:
+        collection_id = self.request.get('collection_id', None)
+        b_start = self.request.get('b_start', None)
+        try:
+            b_start = int(b_start)
+        except:
+            b_start = 0
+
+        if collection_id and portal_type in ['Object']:
+            collection = uuidToObject(collection_id)
+            objects = collection.queryCatalog(batch=True, b_start=int(b_start), b_size=25)
+            for content_item in objects._sequence:
+                new_item = self.generate_slide_from_contentlisting(content_item)
+                if new_item['url']:
+                    result.append(new_item)
+
+            return result
+
+        elif portal_type in ['Collection', 'Folder', 'Object']:
             brain = uuidToCatalogBrain(self.context.UID())
             if getattr(brain, 'leadMedia', None):
                 img_uid = brain.leadMedia
@@ -103,10 +159,8 @@ class SlickCarouselViewlet(ViewletBase):
                     #result.append(slide_item)
                 elif getattr(brain, 'leadMedia', None) and brain.portal_type != "Image":
                     slide_item = self.generate_slide_item_from_brain(brain)
-                    #result.append(slide_item)
                 elif brain.portal_type == "Image":
                     slide_item = self.generate_slide_item_from_brain(brain)
-                    #result.append(slide_item)
 
                 if slide_item:
                     if slide_item['url'] != None:

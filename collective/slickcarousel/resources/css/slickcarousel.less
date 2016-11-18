@@ -73,7 +73,6 @@
 	outline: 0px !important;
 }
 
-
 /* INTK features */
 
 #slickcarousel {
@@ -84,6 +83,20 @@
 	    opacity: 0;
 	    transition: opacity 0.2s ease-in;
 	    text-shadow: none;
+	}
+
+	.slideshow-wrapper.image-contain {
+		.carousel-item {
+			padding-bottom: 80px;
+		}
+
+		.carousel-image-wrapper {
+			background-size: contain;
+		}
+
+		.carousel-image-wrapper img {
+			object-fit: contain;
+		}
 	}
 
 	.slick-list {
@@ -189,10 +202,14 @@
 		.wrap-next, .wrap-prev {
 			opacity: 1;
 		}
+
+		#slideshow-controls {
+			opacity: 1;
+		}
 	}
 
 	.slideshow-wrapper.playing-slide {
-		.slick-prev, .slick-next, .wrap-next, .wrap-prev {
+		.slick-prev, .slick-next, .wrap-next, .wrap-prev, #slideshow-controls {
 			opacity: 0;
 		}
 	}
@@ -205,6 +222,12 @@
 		.wrap-next {
 			opacity: 1;
 		}
+
+		&:not(.image-contain) {
+			#slideshow-controls {
+				opacity: 0;
+			}
+		}
 	}
 
 	.slideshow-wrapper.backward {
@@ -214,6 +237,12 @@
 
 		.wrap-next {
 			opacity: 0;
+		}
+
+		&:not(.image-contain) {
+			#slideshow-controls {
+				opacity: 0;
+			}
 		}
 	}
 
@@ -245,5 +274,81 @@ body.mobile .slideshow-wrapper.playing-slide {
 	}
 }
 
+#slickcarousel .carousel-image-wrapper.ie-object-fit img {
+    display: none !important;
+}
 
+
+body.portaltype-object:not(.userrole-authenticated).slideshow-empty {
+	.intro-header {
+		height: 0px !important;
+		display: none;
+	}
+
+	.page-container {
+		display: block !important;
+		padding-top: 150px;
+
+		@media (max-width: 768px) {
+			padding-top: 75px;
+		}
+	}
+
+	#object-title {
+		display: block;
+	}
+}
+
+#slickcarousel {
+
+	.popover-content {
+	    font-size: 1.000em;
+	    font-weight: 400;
+	    color: #666666;
+	    padding: 20px;
+	}
+
+	.popover-title {
+	    padding: 10px;
+	    padding-left: 15px;
+	    padding-right: 15px;
+	    background-color: #242424;
+	    border-bottom: 0px solid #666666;
+	    padding-top: 15px;
+	}
+
+	h3.popover-title {
+	    color: #ffffff !important;
+	    margin-top: 0px !important;
+	}
+
+	.popover-content {
+	    background-color: #242424;
+	    padding: 10px;
+	    padding-top: 0px;
+	}
+
+	.popover.top > .arrow:after {
+	    border-top-color: #242424;
+	}
+
+	.popover.bottom > .arrow:after {
+	    border-bottom-color: #242424;
+	}
+
+	.popover-content .row {
+	    padding: 5px;
+	    margin-right: 0px;
+    	margin-left: 0px;
+	}
+
+	.popover {
+	    padding: 0px;
+	    border: 1px solid #242424;
+	}
+
+	.facebook-row {
+	    padding-bottom: 10px !important;
+	}
+}
 
