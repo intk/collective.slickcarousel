@@ -411,6 +411,7 @@ function(slickdist) {
         if (!slickCarousel.moved) {
             if (!jQuery(slickCarousel.elem).hasClass("moved")) {
                 jQuery(slickCarousel.elem).addClass("moved");
+                jQuery(".carousel-wrapper").addClass("moved");
             }
             slickCarousel.moved = true;
         }
@@ -428,7 +429,7 @@ function(slickdist) {
     };
 
     slickCarousel.findInitialSlide = function(elem) {
-        if (slickCarousel.collection) {
+        if (!slickCarousel.collection) {
             var location_hash = window.location.hash;
 
             if (location_hash != "" || location_hash != undefined) {
@@ -514,6 +515,8 @@ function(slickdist) {
         if (slickCarousel.$slick != undefined) {
             return slickCarousel.$slick.slick('getSlick');
         }
+
+        return false;
     }
 
     // COLLECTION
@@ -624,22 +627,24 @@ function(slickdist) {
 
     slickCarousel.updateSlideDescription = function(slideIndex) {
         var slick = slickCarousel.getSlick();
-        var $currslide = jQuery(slick.$slides[slideIndex]);
-        var title = $currslide.data('title');
-        if (getParameterByName('collection_id') == "") {
-            var document_title = document.title.split('—');
-            title = document_title[0];
-        }
-        slickCarousel.changeSlideshowDescription(title);
+        if (slick) {
+            var $currslide = jQuery(slick.$slides[slideIndex]);
+            var title = $currslide.data('title');
+            if (getParameterByName('collection_id') == "") {
+                var document_title = document.title.split('—');
+                title = document_title[0];
+            }
+            slickCarousel.changeSlideshowDescription(title);
 
-        //TEMP
-        if (slideIndex == 0) {
-            jQuery('.wrap-prev, .slick-prev').hide();
-        } else {
-            jQuery('.wrap-prev, .slick-prev').attr("style", "");
-        }
+            //TEMP
+            if (slideIndex == 0) {
+                jQuery('.wrap-prev, .slick-prev').hide();
+            } else {
+                jQuery('.wrap-prev, .slick-prev').attr("style", "");
+            }
 
-        jQuery('#object-title h1').html(title);
+            jQuery('#object-title h1').html(title);
+        }
     };
 
     slickCarousel.initCollection = function() {

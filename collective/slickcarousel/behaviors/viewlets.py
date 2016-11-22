@@ -112,6 +112,16 @@ class SlickCarouselViewlet(ViewletBase):
         }
         return item
 
+    def checkObjectOnDisplay(self):
+        if self.context.portal_type == "Object":
+            try:
+                brain = uuidToCatalogBrain(self.context.UID())
+                return brain.object_on_display
+            except:
+                return False
+        else:
+            return False
+
     def get_items(self):
         result = []
 

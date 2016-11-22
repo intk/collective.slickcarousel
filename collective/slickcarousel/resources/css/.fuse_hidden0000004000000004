@@ -356,10 +356,6 @@ body.portaltype-object:not(.userrole-authenticated).slideshow-empty {
 	.facebook-row {
 	    padding-bottom: 10px !important;
 	}
-
-	.slideshow-wrapper {
-		overflow: hidden;
-	}
 }
 
 body.portaltype-object {

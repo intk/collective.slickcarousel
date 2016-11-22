@@ -4,6 +4,9 @@
     
     i18n:domain="collective.slickcarousel">
       <div class="carousel-wrapper">
+        <div class="on-display-wrapper" tal:condition="view/checkObjectOnDisplay" i18n:domain="plonetheme.zeeuwsmuseum" tal:on-error="nothing">
+          <div i18n:translate="object_on_display" class="label_inner">Nu te zien</div>
+        </div>
       <div class="slideshow-wrapper">
           <tal:slideshowitem tal:repeat="item items">
             <tal:normalslide tal:condition="python: item.get('type', '') != 'Link'">
