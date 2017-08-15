@@ -29,8 +29,8 @@
                                 data-index repeat/item/index;">
 
                 <tal:useoverlayimage tal:condition="python: item.get('link_image', None) != None">
-                  <img src="" alt="" tal:attributes="src python: item.get('link_image', None); class python:'overlay-image';" />
                   <iframe frameborder="0" allowfullscreen tal:attributes="src python: item.get('url', ''); id python: item.get('id', '');" class="video-iframe with-overlay"></iframe>
+                  <img src="" alt="" tal:attributes="src python: item.get('link_image', None); class python:'overlay-image';" />
                 </tal:useoverlayimage>
 
                 <tal:nooverlayimage tal:condition="python: item.get('link_image', None) == None">
