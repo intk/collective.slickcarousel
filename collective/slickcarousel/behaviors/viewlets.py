@@ -78,15 +78,37 @@ class SlickCarouselViewlet(ViewletBase):
 
         portal_type = getattr(self.context, 'portal_type', None)
 
-        if portal_type in ['Collection', 'Folder']:
-            brain = uuidToCatalogBrain(self.context.UID())
-            if getattr(brain, 'leadMedia', None):
-                img_uid = brain.leadMedia
-                img = uuidToCatalogBrain(img_uid)
-                if img:
-                    slide_item = self.generate_slide_item_from_brain(img)
-                    result.append(slide_item)
+        if portal_type in ['Collection']:
+            batch = self.context.queryCatalog(b_size=1)
+            brains = [b for b in batch]
+            if brains:
+                brain = brains[0]
+                if getattr(brain, 'leadMedia', None):
+                    img_uid = brain.leadMedia
+                    img = uuidToCatalogBrain(img_uid)
+                    if img:
+                        slide_item = self.generate_slide_item_from_brain(img)
+                        result.append(slide_item)
+                    return result
+                else:
+                    return result
+            else:
                 return result
+
+        if portal_type in ['Folder']:
+            batch = self.context.getFolderContents(batch=True, b_size=1)
+            brains = [b for b in batch]
+            if brains:
+                brain = brains[0]
+                if getattr(brain, 'leadMedia', None):
+                    img_uid = brain.leadMedia
+                    img = uuidToCatalogBrain(img_uid)
+                    if img:
+                        slide_item = self.generate_slide_item_from_brain(img)
+                        result.append(slide_item)
+                    return result
+                else:
+                    return result
             else:
                 return result
 
