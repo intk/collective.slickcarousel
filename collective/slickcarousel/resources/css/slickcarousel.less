@@ -88,6 +88,7 @@
 	.slideshow-wrapper.image-contain {
 		.carousel-item {
 			padding-bottom: 80px;
+			padding-top: 0px;
 		}
 
 		.carousel-image-wrapper {
@@ -305,6 +306,8 @@ body.portaltype-object:not(.userrole-authenticated).slideshow-empty {
 	}
 }
 
+
+
 #slickcarousel {
 
 	.popover-content {
@@ -365,3 +368,21 @@ body.portaltype-object:not(.userrole-authenticated).slideshow-empty {
 body.portaltype-object {
 	
 }
+
+body.portaltype-object.userrole-authenticated #website-wrapper {
+	height: 100% !important;
+
+	.intro-header {
+		margin-top: -59px !important;
+	}
+
+	.title-container {
+		display: none !important;
+	}
+
+	#slickcarousel .actions-div .share-btn {
+		display: none !important;
+	}
+}
+
+

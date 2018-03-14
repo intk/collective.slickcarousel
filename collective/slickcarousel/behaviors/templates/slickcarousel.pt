@@ -4,7 +4,7 @@
     
     i18n:domain="collective.slickcarousel">
       <div class="carousel-wrapper">
-        <div class="on-display-wrapper" tal:condition="view/checkObjectOnDisplay" i18n:domain="plonetheme.zeeuwsmuseum" tal:on-error="nothing">
+        <div class="on-display-wrapper" tal:condition="python: view.checkObjectOnDisplay()" i18n:domain="plonetheme.zeeuwsmuseum" tal:on-error="nothing">
           <div i18n:translate="object_on_display" class="label_inner">Nu te zien</div>
         </div>
       <div class="slideshow-wrapper">
@@ -35,21 +35,22 @@
                 <tal:useoverlayimage tal:condition="python: item.get('link_image', None) != None">
                   <img src="" alt="" tal:attributes="src python: item.get('link_image', None); class python:'overlay-image';" />
                   <iframe frameborder="0" allowfullscreen tal:attributes="src python: item.get('url', ''); id python: item.get('id', '');" class="video-iframe with-overlay"></iframe>
+                  
                 </tal:useoverlayimage>
 
                 <tal:nooverlayimage tal:condition="python: item.get('link_image', None) == None">
                   <iframe frameborder="0" allowfullscreen tal:attributes="src python: item.get('url', ''); id python: item.get('id', '');" class="video-iframe without-overlay"></iframe>
                 </tal:nooverlayimage>
-
               </div>
             </tal:videoslide>
-
           </tal:slideshowitem>
       </div>
         <tal:rendercontrols tal:condition="python: context.portal_type == 'Object'">
-          <div id="slideshow-controls" class="container">
+          <div id="slideshow-controls" class="container"
+                tal:define="lead_image python: view.getLeadImageLink()">
+
                 <div class="col-lg-9 col-md-9 col-sm-9 col-sx-12 count-description">
-                        <p class="slide-description"><span id="slide-count"></span><span id="slide-description"></span></p>
+                  <p class="slide-description"><span id="slide-count"></span><span id="slide-description"></span></p>
                 </div>
                 <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 actions-div">
                         <a type="button" class="btn btn-default info-btn"><i class="fa fa-info-circle"></i></a>
@@ -62,7 +63,7 @@
 
                         <div id="share-settings" style="display:none">
                           <div class="row facebook-row">
-                            <div class="fb-like" data-layout="button_count" data-action="like" data-show-faces="false" data-share="false"></div>
+                            <div class="fb-share-button" data-href="" data-layout="button_count" data-size="small" data-mobile-iframe="true"><a class="fb-xfbml-parse-ignore" target="_blank" tal:attributes="data-href python:context.absolute_url()">Share</a></div>
                           </div>
 
                           <div class="row twitter-row">
@@ -70,7 +71,7 @@
                           </div>
 
                           <div class="row pinterest-row">
-                                  <a id="pinterest-btn" href="//www.pinterest.com/pin/create/button/?url=" data-pin-do="buttonPin" data-pin-config="none"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" tal:attributes="href python: '//www.pinterest.com/pin/create/button/?url=' + context.absolute_url()"/>
+                                  <a id="pinterest-btn" href="http://www.pinterest.com/pin/create/button/?url=" tal:attributes='href python: "http://www.pinterest.com/pin/create/button/?url=" + context.absolute_url() + "&media=" + lead_image' data-pin-do="buttonPin" data-pin-config="none"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" tal:attributes='href python: "http://www.pinterest.com/pin/create/button/?url=" + context.absolute_url()'/>
                                   </a>
                           </div>
                         </div>

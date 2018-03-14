@@ -7,7 +7,7 @@
 
 (function() {
     var s = document.createElement("script");
-    s.src = "//www.youtube.com/iframe_api"; 
+    s.src = "https://www.youtube.com/iframe_api"; 
     var before = document.getElementsByTagName("script")[0];
     before.parentNode.insertBefore(s, before);
 })();
@@ -23,18 +23,14 @@ slickCarousel.initialSlide = 0;
 slickCarousel.playing = false;
 slickCarousel.$slick = undefined;
 
-
 function onYouTubePlayerAPIReady() {
-    slickCarousel.youtube_ready = true;
-    if (slickCarousel.initiated_youtube == false) {
-        if (slickCarousel != undefined) { 
-            if (typeof slickCarousel !== 'undefined' && slickCarousel.YT_ready) {
-                slickCarousel.YT_ready();
-            }
-        }
+  slickCarousel.youtube_ready = true;
+  if (slickCarousel.initiated_youtube == false) {
+    if (slickCarousel != undefined) { 
+      slickCarousel.YT_ready();
     }
+  }
 };
-
 
 function getParameterByName(name) {
     name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
@@ -172,10 +168,7 @@ function(slickdist) {
             var player = slickCarousel.players[iframeID];
             if (player != undefined) {
                 if (player.playVideo) {
-                    if (jQuery('body.portaltype-portlet-page').length) {
-                        player.setPlaybackRate(0.25);
-                    }
-                    player.mute();
+                    player.setPlaybackRate(0.25);
                     player.playVideo();
                 } else {
                     slickCarousel.hidePlayer();
@@ -190,13 +183,10 @@ function(slickdist) {
       if (!jQuery("body").hasClass("userrole-authenticated") && !isMobile.any()) {
             var iframeID = jQuery(slide.find('iframe')[0]).attr('id');
             var player = slickCarousel.players[iframeID];
-
+        
             if (player != undefined) {
                 if (player.playVideo) {
-                    if (jQuery('body.portaltype-portlet-page').length) {
-                        player.setPlaybackRate(0.25); // needs change
-                    }
-                    player.mute();
+                    player.setPlaybackRate(0.25);
                     player.playVideo();
                 } else {
                     slickCarousel.hidePlayer();
@@ -435,8 +425,6 @@ function(slickdist) {
             }
             slickCarousel.moved = true;
         }
-
-        slickCarousel.updateSlideCount();
         slickCarousel.updateHash(slick, currentSlide);
         slickCarousel.changeDirection(slick, currentSlide);
         slickCarousel.playVideoFromSlide(slick, currentSlide);
@@ -449,15 +437,6 @@ function(slickdist) {
         slickCarousel.pauseCurrentSlide(currentSlide);
         slickCarousel.pauseStreetView(slick, currentSlide, true);
     };
-
-    slickCarousel.updateSlideCount = function() {
-        if (jQuery('body.portaltype-object').length) {
-            var slickc = slickCarousel.getSlick();
-            var currentSlide = slickc.currentSlide + 1;
-            var slideCount = slickc.slideCount;
-            jQuery("#slide-count").html(""+currentSlide+"/"+slideCount);
-        }
-    };  
 
     slickCarousel.findInitialSlide = function(elem) {
         if (!slickCarousel.collection) {
@@ -632,7 +611,7 @@ function(slickdist) {
     };
 
     slickCarousel.getSlideFields = function(slick, currentSlide) {
-          /*var URL = "";
+          var URL = "";
           var request_url = "get_fields";
           var $slide_object = jQuery(slickCarousel.getSlick().$slides[currentSlide]);
           var data_url = $slide_object.attr('data-absoluteurl');
@@ -643,7 +622,7 @@ function(slickdist) {
             if (data.schema != undefined) {
               slickCarousel.updateSchema(data.schema);
             }
-          });*/
+          });
     };
 
     slickCarousel.collectionEvents = function(slick, currentSlide) {
@@ -778,7 +757,6 @@ function(slickdist) {
             slickCarousel.$slick = undefined;
         }
 
-        slickCarousel.updateSlideCount();
         slickCarousel.createEvents(elem);
         slickCarousel.initCollection();
     };

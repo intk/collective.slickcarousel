@@ -6,8 +6,8 @@ from AccessControl import getSecurityManager
 from Products.CMFCore.permissions import ModifyPortalContent
 from Products.CMFCore.utils import getToolByName
 
-class SlickCarouselViewlet(ViewletBase):
-    
+
+class SlickCarouselUtils():
     """ A simple viewlet that renders the carousel """
 
     def checkUserPermission(self):
@@ -112,6 +112,20 @@ class SlickCarouselViewlet(ViewletBase):
         }
         return item
 
+    def getLeadImageLink(self):
+        try:
+            context_uid = self.context.UID()
+            brain = uuidToCatalogBrain(context_uid)
+            if brain:
+                img = uuidToCatalogBrain(getattr(brain, 'leadMedia', None))
+                if img:
+                    url = "%s/@@images/image/%s" % (img.getURL(), "large")
+                    return url
+        except:
+            raise
+
+        return ""
+
     def checkObjectOnDisplay(self):
         if self.context.portal_type == "Object":
             try:
@@ -144,7 +158,7 @@ class SlickCarouselViewlet(ViewletBase):
 
             return result
 
-        elif portal_type in ['Collection', 'Folder', 'Object']:
+        elif portal_type in ['Collection', 'Folder']:
             brain = uuidToCatalogBrain(self.context.UID())
             if getattr(brain, 'leadMedia', None):
                 img_uid = brain.leadMedia
@@ -181,4 +195,10 @@ class SlickCarouselViewlet(ViewletBase):
             return result
 
         return result
+
+class SlickCarouselViewlet(ViewletBase, SlickCarouselUtils):
+    
+    """ A simple viewlet that renders the carousel """
+
+    pass
 
