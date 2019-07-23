@@ -1,39 +1,199 @@
-<tal:slideshowitems tal:define="items python: view.get_items()">
+<tal:slideshowitems tal:define="slideshow_items python: view.get_items();
+                                items python: slideshow_items.get('items', []);
+                                has_presentation python: slideshow_items.get('has_presentation', False);
+                                portal context/@@plone_portal_state/portal; 
+                                image_scale portal/@@image_scale;
+                                items_size python: len(items)">
   <div class="carousel" id="slickcarousel"
-    tal:attributes="class python: 'carousel empty' if not len(items) else 'carousel'"
+    tal:attributes="class python: 'carousel empty' if not items_size else 'carousel'"
     
     i18n:domain="collective.slickcarousel">
-      <div class="carousel-wrapper">
-        <div class="on-display-wrapper" tal:condition="python: view.checkObjectOnDisplay()" i18n:domain="plonetheme.zeeuwsmuseum" tal:on-error="nothing">
-          <div i18n:translate="object_on_display" class="label_inner">Nu te zien</div>
-        </div>
-      <div class="slideshow-wrapper">
+
+      <div id="object-header">
+          <div class="title-container">
+              <h1 class="brand-name"></h1>
+              <span class="subheading"><div class="documentDescription"></div></span>
+          </div>
+      </div>
+    
+      <div class="carousel-wrapper" tal:condition="python: items_size > 0">  
+      
+      <div class="slideshow-wrapper image-contain" tal:attributes="class python: 'slideshow-wrapper image-contain' if getattr(context, 'portal_type', None) =='Object' else 'slideshow-wrapper';">
           <tal:slideshowitem tal:repeat="item items">
-            <tal:normalslide tal:condition="python: item.get('type', '') != 'Link'">
-              <div class="carousel-item" 
-                tal:attributes="data-path python: item.get('path', '');
-                                data-title python: item.get('title', '');
-                                data-description python: item.get('description', '');
-                                data-id python: item.get('id', '');
-                                data-absoluteurl python: item.get('absoluteurl', '');
-                                data-index repeat/item/index;">
-                
-                <div class="carousel-image-wrapper">
-                  <img tal:attributes="src python: item.get('url', '#');" class="carousel-image"/>
-                </div>
-              </div>
+            <tal:normalslide tal:condition="python: item.get('type', '') not in ['Link'] and getattr(context, 'portal_type', None) not in ['Object']">
+              
+              <tal:portrait tal:condition="python: item.get('orientation', '') == 'portrait'">
+                    <div class="carousel-item portrait" 
+                      tal:attributes="data-path python: item.get('path', '');
+                                      data-title python: item.get('title', '');
+                                      data-description python: item.get('description', '');
+                                      data-id python: item.get('id', '');
+                                      data-absoluteurl python: item.get('absoluteurl', '');
+                                      data-index repeat/item/index;"
+
+
+                      tal:define="img_brain python: item.get('img_brain', None);
+                                  number repeat/item/number;
+                                  item_count python: '%s/%s' %(number, len(items));
+                                  item_description_alt python: '%s - %s' %(item_count, item.get('description', '')) if item.get('description', '') else '%s' %(item_count)">
+                      
+                      <div class="carousel-image-wrapper">
+                          <img tal:replace="structure python: image_scale.tag(img_brain, 'image', scale='large', css_class='carousel-image', title='', alt=item_description_alt)"/>
+                      </div>
+
+                      <div class="title-carousel-wrapper" tal:condition="python: number == 1">
+                           <div class="title-container" tal:define="is_past python: context.restrictedTraverse('@@context_tools').isEventPast(context)">
+                              <ul class="event dates">
+                              <li class="event-date" tal:attributes="class python: 'event-date past' if is_past else 'event-date'">
+                              
+                              <tal:date replace="structure python:view.formatted_date()" tal:condition="python: getattr(context, 'portal_type', None) in ['Event', 'Occurrence']"/>
+                              <tal:news_item_date tal:replace="python:context.restrictedTraverse('@@context_tools').get_pub_date(context)" tal:condition="python: getattr(context, 'portal_type', None) == 'News Item'"/>
+                              </li></ul>
+
+                              <h1 class="brand-name" tal:content="context/Title|nothing"></h1>
+                              <span class="subheading" tal:content="structure python: context.restrictedTraverse('@@context_tools').getFixedLastWord(context.Description())"></span>
+
+                              <div class="button-container" tal:condition="python: items_size > 0 and getattr(context, 'portal_type', None) in ['Event']"
+                                tal:define="item_event_url python: getattr(context, 'event_url', '')">
+                                
+                                <a href="https://tickets.centraalmuseum.nl/exhibitions/overview" target="_blank" class="btn btn-default" i18n:domain="plonetheme.centraalmuseum" i18n:translate="slide_buy" tal:attributes="href python: item_event_url if item_event_url else 'https://tickets.centraalmuseum.nl/exhibitions/overview'" tal:condition="python: item_event_url != 'http://' and not is_past">Tickets</a>
+
+                                <button class="btn btn-default" id="slideshow-next" i18n:domain="plonetheme.centraalmuseum" i18n:translate="slide_images" tal:condition="python: items_size > 1 and not has_presentation and not is_past">Preview</button>
+
+                                <button class="btn btn-default" id="slideshow-next" i18n:domain="plonetheme.centraalmuseum" i18n:translate="slide_images_see" tal:condition="python: items_size > 1 and not has_presentation and is_past">View</button>
+
+                                <button class="btn btn-default" id="prat-info-btn" i18n:domain="plonetheme.centraalmuseum" i18n:translate="slide_information" tal:condition="python: has_presentation and not is_past">Information</button>
+                                
+
+                                <button class="btn btn-default" id="slideshow-next" i18n:domain="plonetheme.centraalmuseum" i18n:translate="slide_images_see" tal:condition="python: items_size > 1 and has_presentation and is_past">View</button>
+
+                                <!--<button class="btn btn-default" id="prat-info-btn" i18n:domain="plonetheme.centraalmuseum" i18n:translate="" tal:condition="python: has_presentation and is_past">Info</button>-->
+                              </div>
+
+                              <div class="button-container" tal:condition="python: items_size > 1 and getattr(context, 'portal_type', None) not in ['Event']">
+                                <button class="btn btn-default" id="slideshow-next" i18n:domain="plonetheme.centraalmuseum" i18n:translate="slide_photos">Photos</button>
+                              </div>
+
+                           </div>
+                      </div>
+                      
+
+                    </div>
+              </tal:portrait>
+
+              <tal:landscape tal:condition="python: item.get('orientation', '') != 'portrait'">
+                  <div class="carousel-item landscape" 
+                    tal:attributes="data-path python: item.get('path', '');
+                                    data-title python: item.get('title', '');
+                                    data-description python: item.get('description', '');
+                                    data-id python: item.get('id', '');
+                                    data-absoluteurl python: item.get('absoluteurl', '');
+                                    data-index repeat/item/index;"
+
+                    tal:define="img_brain python: item.get('img_brain', None);
+                                number repeat/item/number;
+                                item_count python: '%s/%s' %(number, len(items));
+                                item_description_alt python: '%s - %s' %(item_count, item.get('description', '')) if item.get('description', '') else '%s' %(item_count)">
+                    
+                    
+                    <div class="carousel-image-wrapper">
+                      <img tal:replace="structure python: image_scale.tag(img_brain, 'image', scale='large', css_class='carousel-image', title='', alt=item_description_alt)"/>
+                    </div>
+
+                    <div class="title-carousel-wrapper" tal:condition="python: number == 1">
+                           <div class="title-container" tal:define="is_past python: context.restrictedTraverse('@@context_tools').isEventPast(context)">
+                              <ul class="event dates">
+                              <li class="event-date" tal:attributes="class python: 'event-date past' if is_past else 'event-date'">
+                              
+                              <tal:date replace="structure python:view.formatted_date()" tal:condition="python: getattr(context, 'portal_type', None) == 'Event'"/>
+                              <tal:news_item_date tal:replace="python:context.restrictedTraverse('@@context_tools').get_pub_date(context)" tal:condition="python: getattr(context, 'portal_type', None) == 'News Item'"/>
+                              </li></ul>
+                              <h1 class="brand-name" tal:content="context/Title|nothing"></h1>
+                              <span class="subheading" tal:content="context/Description|nothing"></span>
+                              <div class="button-container" tal:condition="python: items_size > 0 and getattr(context, 'portal_type', None) in ['Event']"
+                                    tal:define="item_event_url python: getattr(context, 'event_url', '')">
+
+                                <a href="https://tickets.centraalmuseum.nl/exhibitions/overview" target="_blank" class="btn btn-default" i18n:domain="plonetheme.centraalmuseum" i18n:translate="slide_buy" tal:attributes="href python: item_event_url if item_event_url else 'https://tickets.centraalmuseum.nl/exhibitions/overview'" tal:condition="python: item_event_url != 'http://' and not is_past">Tickets</a>
+
+                                <button class="btn btn-default" id="slideshow-next" i18n:domain="plonetheme.centraalmuseum" i18n:translate="slide_images" tal:condition="python: items_size > 1 and not has_presentation and not is_past">Preview</button>
+
+                                <button class="btn btn-default" id="slideshow-next" i18n:domain="plonetheme.centraalmuseum" i18n:translate="slide_images_see" tal:condition="python: items_size > 1 and not has_presentation and is_past">View</button>
+
+                                <button class="btn btn-default" i18n:domain="plonetheme.centraalmuseum" id="prat-info-btn" i18n:translate="slide_information" tal:condition="has_presentation">Information</button>
+                              </div>
+
+                              <div class="button-container" tal:condition="python: items_size > 1 and getattr(context, 'portal_type', None) not in ['Event']">
+                                <button class="btn btn-default" id="slideshow-next" i18n:domain="plonetheme.centraalmuseum" i18n:translate="slide_photos">Photos</button>
+                              </div>
+                           </div>
+                      </div>
+                      
+                  </div>
+              </tal:landscape>
             </tal:normalslide>
 
-            <tal:videoslide tal:condition="python: item.get('type', '') == 'Link'">
+            <tal:normalslideobject tal:condition="python: getattr(context, 'portal_type', None) in ['Object']">
+              <div class="carousel-item" 
+                    tal:attributes="data-path python: item.get('path', '');
+                                    data-title python: item.get('title', '');
+                                    data-description python: item.get('description', '');
+                                    data-id python: item.get('id', '');
+                                    data-absoluteurl python: item.get('absoluteurl', '');
+                                    data-index repeat/item/index;">
+                    
+                    <div class="carousel-image-wrapper image-zoomable" tal:attributes="data-imgoriginal python: item.get('absoluteurl', '')">
+                      
+                    </div>
+                  </div>
+            </tal:normalslideobject>
+
+            
+            <tal:videoslide tal:condition="python: item.get('type', '') == 'Link' and getattr(context, 'portal_type', None) not in ['Object']">
               <div class="carousel-item video-slide" 
                 tal:attributes="data-path python: item.get('path', '');
                                 data-title python: item.get('title', '');
                                 data-description python: item.get('description', '');
                                 data-id python: item.get('id', '');
-                                data-index repeat/item/index;">
+                                data-index repeat/item/index;"
+                tal:define="img_brain python: item.get('img_brain', None);">
+
+                <style>
+                  body.frontend #website-wrapper.presentation #slickcarousel:before,
+                  body.frontend #website-wrapper #slickcarousel:before {
+                        display: block;
+                        content: "";
+                        width: 100%;
+                        padding-top: 56.26% !important;
+                  }
+
+                  body.frontend #website-wrapper.presentation #slickcarousel,
+                  body.frontend #website-wrapper #slickcarousel {
+                    height: 100% !important;
+                  }
+                </style>
 
                 <tal:useoverlayimage tal:condition="python: item.get('link_image', None) != None">
-                  <img src="" alt="" tal:attributes="src python: item.get('link_image', None); class python:'overlay-image';" />
+
+                  <div class="slideshow-btn-wrapper">
+                  </div>
+
+                  <div class="video-play-btn"></div>
+                  <div class="plone-loader"><div class="loader"></div></div>
+                  <div class="carousel-image-wrapper">
+
+                  <div class="title-carousel-wrapper">
+                       <div class="title-container">
+                          <ul class="event dates"
+                              tal:define="is_past python: context.restrictedTraverse('@@context_tools').isEventPast(context)">
+                              <li class="event-date" tal:attributes="class python: 'event-date past' if is_past else 'event-date'">
+                              <tal:date replace="structure python:view.formatted_date()" tal:condition="python: getattr(context, 'portal_type', None) == 'Event'"/></li></ul>
+                          <h1 class="brand-name" tal:content="context/Title|nothing"></h1>
+                          <span class="subheading" tal:content="context/Description|nothing"></span>
+                       </div>
+                  </div>
+                      
+                  <img tal:replace="structure python: image_scale.tag(img_brain, 'image', scale='large', css_class='overlay-image')"/>
+                  </div>
                   <iframe frameborder="0" allowfullscreen tal:attributes="src python: item.get('url', ''); id python: item.get('id', '');" class="video-iframe with-overlay"></iframe>
                   
                 </tal:useoverlayimage>
@@ -42,9 +202,14 @@
                   <iframe frameborder="0" allowfullscreen tal:attributes="src python: item.get('url', ''); id python: item.get('id', '');" class="video-iframe without-overlay"></iframe>
                 </tal:nooverlayimage>
               </div>
+              
             </tal:videoslide>
           </tal:slideshowitem>
-      </div>
+          </div>
+        
+
+
+
         <tal:rendercontrols tal:condition="python: context.portal_type == 'Object'">
           <div id="slideshow-controls" class="container"
                 tal:define="lead_image python: view.getLeadImageLink()">
@@ -52,22 +217,46 @@
                 <div class="col-lg-9 col-md-9 col-sm-9 col-sx-12 count-description">
                   <p class="slide-description"><span id="slide-count"></span><span id="slide-description"></span></p>
                 </div>
+
                 <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 actions-div">
-                        <a type="button" class="btn btn-default info-btn"><i class="fa fa-info-circle"></i></a>
-                        <a type="button" class="btn btn-default expand-btn"><i class="fa fa-compress"></i></a>
-                        <a type="button" class="btn btn-default share-btn hidden-xs" data-toggle="popover" data-placement="top"><i class="fa fa-share-alt"></i></a>
+                        
+                        <ul>
+                          <li>
+                            <a href="#" class="share-btn-old" data-toggle="popover" data-placement="top">
+                              <i class="icn-share-grey40"></i>
+                              <span>Share</span>
+                            </a>
+                        </li>
+                          
+                          <li class="toolbox__download"><a href="#" title="Download" alt="Download" 
+                          tal:attributes="class python: 'freeofcopyright' if getattr(context, 'freeofcopyright', None) not in [None, '', ' '] else ''; 
+                                          data-object_number python: getattr(context, 'object_number', ''); 
+                                          data-rights python: getattr(context, 'rights', '');
+                                          data-creator python:context.restrictedTraverse('@@context_tools').getObjectCreator(context);
+                                          data-title python: getattr(context, 'title', '');
+                                          "
+                                          ><i class="icn-unpublish-grey40"></i> <span>Download</span></a></li>
+                        
+                          
+                        
+                        </ul>
+
 
                         <div id="share-title" style="display:none" i18n:translate="Share">
-                          Deze pagina delen
+                          Delen
                         </div>
 
                         <div id="share-settings" style="display:none">
                           <div class="row facebook-row">
-                            <div class="fb-share-button" data-href="" data-layout="button_count" data-size="small" data-mobile-iframe="true"><a class="fb-xfbml-parse-ignore" target="_blank" tal:attributes="data-href python:context.absolute_url()">Share</a></div>
+                            <a onclick="return !window.open(this.href, 'Facebook', 'width=500,height=500')" tal:attributes="href python: 'https://www.facebook.com/sharer/sharer.php?u=%s' %(context.absolute_url())" class="share-btn-social">
+                              <img class="share-button" alt="Delen op Facebook" src="++resource++plonetheme.centraalmuseum/soc_fb_wBG.svg" style="max-width: 60px;">
+                            </a>
                           </div>
 
                           <div class="row twitter-row">
-                                  <a href="https://twitter.com/share" class="twitter-share-button" tal:attributes="data-url python: context.absolute_url(); data-text python: context.Title()">Tweet</a>
+                            <a onclick="return !window.open(this.href, 'Twitter', 'width=500,height=500')" tal:attributes="href python: 'http://twitter.com/share?text=%s&amp;url=%s' %(context.Title(), context.absolute_url())" class="share-btn-social">
+                                <img class="share-button" alt="Delen op Twitter" src="++resource++plonetheme.centraalmuseum/share_button_twitter.svg" style="max-width: 60px;">
+                            </a>
                           </div>
 
                           <div class="row pinterest-row">
