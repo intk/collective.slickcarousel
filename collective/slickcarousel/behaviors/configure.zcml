@@ -28,6 +28,15 @@
     permission="zope2.View"
     />
 
+  <browser:viewlet
+    name="slickcarousel"
+    for="plone.event.interfaces.IOccurrence"
+    class=".viewlets.SlickCarouselViewlet"
+    manager="plone.app.layout.viewlets.interfaces.IAboveContentBody"
+    template="templates/slickcarousel.pt"
+    permission="zope2.View"
+    />
+
    <browser:page
          for="*"
          name="get_carousel_item"

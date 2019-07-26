@@ -12,6 +12,8 @@
     before.parentNode.insertBefore(s, before);
 })();
 
+!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
+
 var slickCarousel = {};
 slickCarousel.youtube_ready = false;
 slickCarousel.initiated_youtube = false;
@@ -21,7 +23,7 @@ slickCarousel.initialSlide = 0;
 slickCarousel.playing = false;
 slickCarousel.$slick = undefined;
 
-window.onYouTubePlayerAPIReady = function() {
+function onYouTubePlayerAPIReady() {
   slickCarousel.youtube_ready = true;
   if (slickCarousel.initiated_youtube == false) {
     if (slickCarousel != undefined) { 
@@ -29,7 +31,6 @@ window.onYouTubePlayerAPIReady = function() {
     }
   }
 };
-
 
 function getParameterByName(name) {
     name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
@@ -167,10 +168,7 @@ function(slickdist) {
             var player = slickCarousel.players[iframeID];
             if (player != undefined) {
                 if (player.playVideo) {
-                    if (jQuery('body.portaltype-portlet-page').length) {
-                        player.setPlaybackRate(0.25);
-                    }
-                    player.mute();
+                    player.setPlaybackRate(0.25);
                     player.playVideo();
                 } else {
                     slickCarousel.hidePlayer();
@@ -188,8 +186,7 @@ function(slickdist) {
         
             if (player != undefined) {
                 if (player.playVideo) {
-                    player.setPlaybackRate(0.25); // needs change
-                    player.mute();
+                    player.setPlaybackRate(0.25);
                     player.playVideo();
                 } else {
                     slickCarousel.hidePlayer();
@@ -222,7 +219,7 @@ function(slickdist) {
                 slickCarousel.playing = true;
                 setTimeout(function() {
                     slickCarousel.hidePlayer();
-                }, 600);
+                }, 400);
             } else if (event.data == 2) {
                 slickCarousel.initialPosition();
                 slickCarousel.playing = false;
@@ -428,22 +425,11 @@ function(slickdist) {
             }
             slickCarousel.moved = true;
         }
-        slickCarousel.updateSlideCount();
         slickCarousel.updateHash(slick, currentSlide);
         slickCarousel.changeDirection(slick, currentSlide);
         slickCarousel.playVideoFromSlide(slick, currentSlide);
         slickCarousel.startStreetView(slick, currentSlide);
         slickCarousel.collectionEvents(slick, currentSlide);
-        slickCarousel.jaarverslagEvents(slick, currentSlide);
-    };
-
-    slickCarousel.updateSlideCount = function() {
-        if (jQuery('body.section-jaarverslag').length || jQuery('body.portaltype-event').length || jQuery('body.portaltype-document').length) {
-            var slickc = slickCarousel.getSlick();
-            var currentSlide = slickc.currentSlide + 1;
-            var slideCount = slickc.slideCount;
-            jQuery("#slide-count").html(""+currentSlide+"/"+slideCount);
-        }
     };
 
     slickCarousel.beforeChange = function(event, slick, currentSlide, nextSlide) {
@@ -655,35 +641,15 @@ function(slickdist) {
         // update dangerous entry
     };
 
-    slickCarousel.jaarverslagEvents = function(slick, currentSlide) {
-        // UPDATE CURRENT SLIDE DETAILS
-        if (jQuery('body').hasClass("section-jaarverslag") || jQuery('body').hasClass("portaltype-event") || jQuery('body').hasClass("portaltype-document")) {
-            slickCarousel.updateSlideDescription(currentSlide);
-        }
-        // UPDATE SLIDES
-        // check dangereous entry
-
-        // request for more slides
-
-        // render new slides
-
-        // update dangerous entry
-    };
-
     slickCarousel.updateSlideDescription = function(slideIndex) {
         var slick = slickCarousel.getSlick();
         if (slick) {
             var title = "";
             var $currslide = jQuery(slick.$slides[slideIndex]);
             var title = $currslide.data('title');
-
-            if (jQuery("body").hasClass('section-jaarverslag') || jQuery("body").hasClass('portaltype-document') || jQuery("body").hasClass('portaltype-event')) {
-                var title = $currslide.data('description');
-            } else {
-                if (getParameterByName('collection_id') == "") {
-                    var document_title = document.title.split('—');
-                    title = document_title[0];
-                }
+            if (getParameterByName('collection_id') == "") {
+                var document_title = document.title.split('—');
+                title = document_title[0];
             }
             slickCarousel.changeSlideshowDescription(title);
 
@@ -707,12 +673,6 @@ function(slickdist) {
         }
     };
 
-    slickCarousel.initJaarverslag = function(initialSlide) {
-        if (jQuery("body").hasClass('section-jaarverslag') || jQuery("body").hasClass('portaltype-document') || jQuery("body").hasClass('portaltype-event')) {
-            slickCarousel.updateSlideDescription(initialSlide);
-        }
-    };
-
     slickCarousel.checkCarouselElements = function(elem, to_show) {
         if (!jQuery(elem).length) {
             jQuery('body').addClass('slideshow-empty');
@@ -732,12 +692,12 @@ function(slickdist) {
     };
 
     slickCarousel.initSocialButtons = function() {
-        /*if ($("body.site-nl").length > 0) {
+        if ($("body.site-nl").length > 0) {
             (function(d, s, id) {
               var js, fjs = d.getElementsByTagName(s)[0];
               if (d.getElementById(id)) return;
               js = d.createElement(s); js.id = id;
-              js.src = "//connect.facebook.net/nl_NL/sdk.js#xfbml=1&appId=733268620195437&version=v2.11";
+              js.src = "//connect.facebook.net/nl_NL/sdk.js#xfbml=1&appId=634764129875517&version=v2.10";
               fjs.parentNode.insertBefore(js, fjs);
             } (document, 'script', 'facebook-jssdk'));
         } else {
@@ -745,10 +705,10 @@ function(slickdist) {
                 var js, fjs = d.getElementsByTagName(s)[0];
                 if (d.getElementById(id)) return;
                 js = d.createElement(s); js.id = id;
-                js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&appId=733268620195437&version=v2.11";
+                js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&appId=634764129875517&version=v2.10";
                 fjs.parentNode.insertBefore(js, fjs);
             } (document, 'script', 'facebook-jssdk'));
-        }*/
+        }
 
         jQuery(function() {
             if (!jQuery('body').hasClass('userrole-authenticated')) {
@@ -797,10 +757,8 @@ function(slickdist) {
             slickCarousel.$slick = undefined;
         }
 
-        slickCarousel.updateSlideCount();
         slickCarousel.createEvents(elem);
         slickCarousel.initCollection();
-        slickCarousel.initJaarverslag(initialSlide);
     };
 
     jQuery(document).ready(function() {

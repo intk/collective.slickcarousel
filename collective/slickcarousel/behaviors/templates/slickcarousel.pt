@@ -4,7 +4,7 @@
     
     i18n:domain="collective.slickcarousel">
       <div class="carousel-wrapper">
-        <div class="on-display-wrapper" tal:condition="view/checkObjectOnDisplay" i18n:domain="plonetheme.zeeuwsmuseum" tal:on-error="nothing">
+        <div class="on-display-wrapper" tal:condition="python: view.checkObjectOnDisplay()" i18n:domain="plonetheme.zeeuwsmuseum" tal:on-error="nothing">
           <div i18n:translate="object_on_display" class="label_inner">Nu te zien</div>
         </div>
       <div class="slideshow-wrapper">
@@ -40,18 +40,19 @@
                 <tal:nooverlayimage tal:condition="python: item.get('link_image', None) == None">
                   <iframe frameborder="0" allowfullscreen tal:attributes="src python: item.get('url', ''); id python: item.get('id', '');" class="video-iframe without-overlay"></iframe>
                 </tal:nooverlayimage>
-
               </div>
             </tal:videoslide>
-
           </tal:slideshowitem>
       </div>
-        <tal:rendercontrols tal:condition="python: context.portal_type == 'Object'">
-          <div id="slideshow-controls" class="container">
+        <tal:rendercontrols>
+          <div id="slideshow-controls" class="container"
+                tal:define="lead_image python: view.getLeadImageLink()">
+
                 <div class="col-lg-9 col-md-9 col-sm-9 col-sx-12 count-description">
-                        <p class="slide-description"><span id="slide-count"></span><span id="slide-description"></span></p>
+                  <p class="slide-description"><span id="slide-count"></span><span id="slide-description"></span></p>
                 </div>
-                <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 actions-div">
+
+                <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 actions-div" tal:condition="python: context.portal_type == 'Object'">
                         <a type="button" class="btn btn-default info-btn"><i class="fa fa-info-circle"></i></a>
                         <a type="button" class="btn btn-default expand-btn"><i class="fa fa-compress"></i></a>
                         <a type="button" class="btn btn-default share-btn hidden-xs" data-toggle="popover" data-placement="top"><i class="fa fa-share-alt"></i></a>
@@ -60,17 +61,21 @@
                           Deze pagina delen
                         </div>
 
-                        <div id="share-settings" style="display:none">
+                        <div id="share-settings" style="visibility: hidden;">
                           <div class="row facebook-row">
-                            <div class="fb-like" data-layout="button_count" data-action="like" data-show-faces="false" data-share="false"></div>
+                            <a onclick="return !window.open(this.href, 'Facebook', 'width=500,height=500')" tal:attributes="href python: 'https://www.facebook.com/sharer/sharer.php?u=%s' %(context.absolute_url())">
+                              <img class="share-button" alt="Delen op Facebook" src="++resource++plonetheme.zeeuwsmuseum/soc_fb_wBG.svg" style="max-width: 60px;">
+                            </a>
                           </div>
 
                           <div class="row twitter-row">
-                                  <a href="https://twitter.com/share" class="twitter-share-button" tal:attributes="data-url python: context.absolute_url(); data-text python: context.Title()">Tweet</a>
+                            <a onclick="return !window.open(this.href, 'Twitter', 'width=500,height=500')" tal:attributes="href python: 'http://twitter.com/share?text=%s&amp;url=%s' %(context.Title(), context.absolute_url())">
+                                <img class="share-button" alt="Delen op Twitter" src="++resource++plonetheme.zeeuwsmuseum/share_button_twitter.svg" style="max-width: 60px;">
+                            </a>
                           </div>
 
                           <div class="row pinterest-row">
-                                  <a id="pinterest-btn" href="//www.pinterest.com/pin/create/button/?url=" data-pin-do="buttonPin" data-pin-config="none"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" tal:attributes="href python: '//www.pinterest.com/pin/create/button/?url=' + context.absolute_url()"/>
+                                  <a id="pinterest-btn" href="http://www.pinterest.com/pin/create/button/?url=" tal:attributes='href python: "http://www.pinterest.com/pin/create/button/?url=" + context.absolute_url() + "&media=" + lead_image + "&description=" + context.Title()+", Zeeuws Museum"; data-pin-description python: context.Title()' data-pin-do="buttonPin" data-pin-config="none"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" tal:attributes='href python: "http://www.pinterest.com/pin/create/button/?url=" + context.absolute_url()'/>
                                   </a>
                           </div>
                         </div>

@@ -5,9 +5,10 @@ from plone.app.uuid.utils import uuidToCatalogBrain, uuidToObject
 from AccessControl import getSecurityManager
 from Products.CMFCore.permissions import ModifyPortalContent
 from Products.CMFCore.utils import getToolByName
+from Acquisition import aq_inner, aq_parent
 
-class SlickCarouselViewlet(ViewletBase):
-    
+
+class SlickCarouselUtils():
     """ A simple viewlet that renders the carousel """
 
     def checkUserPermission(self):
@@ -112,6 +113,20 @@ class SlickCarouselViewlet(ViewletBase):
         }
         return item
 
+    def getLeadImageLink(self):
+        try:
+            context_uid = self.context.UID()
+            brain = uuidToCatalogBrain(context_uid)
+            if brain:
+                img = uuidToCatalogBrain(getattr(brain, 'leadMedia', None))
+                if img:
+                    url = "%s/@@images/image/%s" % (img.getURL(), "large")
+                    return url
+        except:
+            raise
+
+        return ""
+
     def checkObjectOnDisplay(self):
         if self.context.portal_type == "Object":
             try:
@@ -126,6 +141,10 @@ class SlickCarouselViewlet(ViewletBase):
         result = []
 
         portal_type = getattr(self.context, 'portal_type', None)
+
+        current_context = self.context
+        if portal_type == "Occurrence":
+            current_context = aq_parent(aq_inner(self.context))
 
         collection_id = self.request.get('collection_id', None)
         b_start = self.request.get('b_start', None)
@@ -145,7 +164,7 @@ class SlickCarouselViewlet(ViewletBase):
             return result
 
         elif portal_type in ['Collection', 'Folder', 'Object']:
-            brain = uuidToCatalogBrain(self.context.UID())
+            brain = uuidToCatalogBrain(current_context.UID())
             if getattr(brain, 'leadMedia', None):
                 img_uid = brain.leadMedia
                 img = uuidToCatalogBrain(img_uid)
@@ -156,10 +175,10 @@ class SlickCarouselViewlet(ViewletBase):
             else:
                 return result
 
-        elif self.context.get('slideshow', None):
+        elif current_context.get('slideshow', None):
             # Get items inside of slideshow
-            slideshow = self.context['slideshow']
-            catalog = getToolByName(self.context, "portal_catalog")
+            slideshow = current_context['slideshow']
+            catalog = getToolByName(current_context, "portal_catalog")
             slideshow_path = "/".join(slideshow.getPhysicalPath())
             items = catalog(path={"query": slideshow_path, "depth": 1}, sort_on="getObjPositionInParent")
             for brain in items:
@@ -181,4 +200,10 @@ class SlickCarouselViewlet(ViewletBase):
             return result
 
         return result
+
+class SlickCarouselViewlet(ViewletBase, SlickCarouselUtils):
+    
+    """ A simple viewlet that renders the carousel """
+
+    pass
 
